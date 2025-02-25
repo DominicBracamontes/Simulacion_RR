@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulacion Round Robin</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .card-body {
+            min-height: 150px;
+        }
+        #resultado {
+            margin-top: 20px;
+        }
+        .resultado-box {
+            background-color: #f8f9fa;
+            border: 1px solid #ccc;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container my-5">
+        <h1 class="text-center">Simulacion Round Robin</h1>
+        <div class="form-group">
+            <label for="cantidadProcesos">Numero de procesos (1-3):</label>
+            <input type="number" class="form-control" id="cantidadProcesos" min="1" max="3">
+        </div>
+        <button class="btn btn-primary" id="iniciarSimulacion">Iniciar Simulacion</button>
+        <div id="procesosContainer" class="row mt-4"></div>
+        <div id="resultado" class="mt-4 resultado-box"></div>
+    </div>
+
+    <script>
+        const procesosPredefinidos = [
+            ["a = 1 + 2;", "console.log(\"1 + 2\");", "console.log(a);"],
+            ["b = 3 + 4;", "console.log(\"3 + 4\");"],
+            ["c = 5 + 6;", "console.log(\"5 + 6\");", "console.log(c);"]
+        ];
+
+        class Proceso {
+            constructor(id, instrucciones) {
+                this.id = id;
+                this.instrucciones = instrucciones;
+                this.lineaActual = 0;
+                this.terminado = false;
+            }
+
+            ejecutar() {
+                if (this.lineaActual < this.instrucciones.length) {
+                    return `Proceso ${this.id}\nLinea de codigo: ${this.instrucciones[this.lineaActual]}`;
+                }
+                if (this.lineaActual >= this.instrucciones.length) {
+                    this.terminado = true;
+                    return `Proceso ${this.id}\nTerminado`;
+                }
+            }
+
+            siguienteLinea() {
+                this.lineaActual++;
+            }
+        }
+
+        function inicializarRR(cantidadProcesos) {
+            const procesos = procesosPredefinidos.slice(0, cantidadProcesos).map((instrucciones, i) => new Proceso(i + 1, instrucciones));
+            ejecutarRR(procesos);
+        }
+
+        function ejecutarRR(procesos) {
+            const resultadoContainer = document.getElementById("resultado");
+            resultadoContainer.innerHTML = ""; 
+
+            let todosTerminado = false;
+
+            while (!todosTerminado) {
+                todosTerminado = true;
+
+                for (let i = 0; i < procesos.length; i++) {
+                    const proceso = procesos[i];
+
+                    if (!proceso.terminado) {
+                        resultadoContainer.innerHTML += `<div>${proceso.ejecutar()}</div>`;
+                        proceso.siguienteLinea();
+                        todosTerminado = false;
+                    } else {
+                        if (proceso.terminado && proceso.lineaActual === proceso.instrucciones.length) {
+                            resultadoContainer.innerHTML += `<div>${proceso.ejecutar()}</div>`;
+                        }
+                    }
+                }
+            }
+
+            resultadoContainer.innerHTML += "<div><b>Ejecucion completada.</b></div>";
+        }
+
+        document.getElementById("iniciarSimulacion").addEventListener("click", function () {
+            const cantidadProcesos = parseInt(document.getElementById("cantidadProcesos").value);
+
+            if (!isNaN(cantidadProcesos) && cantidadProcesos > 0 && cantidadProcesos <= 3) {
+                inicializarRR(cantidadProcesos);
+            } else {
+                alert("Error debe ser entre 1-3.");
+            }
+        });
+
+        function crearCardsDeProcesos(cantidadProcesos) {
+            const procesosContainer = document.getElementById("procesosContainer");
+            procesosContainer.innerHTML = ""; 
+
+            for (let i = 0; i < cantidadProcesos; i++) {
+                const card = `
+                    <div class="col-md-4 mb-3">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title">Proceso ${i + 1}</h5>
+                            </div>
+                            <div class="card-body">
+                                <ul id="proceso${i + 1}">
+                                    <li>${procesosPredefinidos[i].join("</li><li>")}</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                procesosContainer.innerHTML += card;
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            crearCardsDeProcesos(3); 
+        });
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
