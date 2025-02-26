@@ -1,6 +1,6 @@
 const readline = require("readline");
 
-// arreglo de cadenas con las lineas de código a ejecutar.
+// arreglo de cadenas con las lineas de codigo a ejecutar.
 const procesosPredefinidos = [
     ["a = 1 + 2;", "console.log(\"1 + 2\");", "console.log(a);"],
     ["b = 3 + 4;", "console.log(\"3 + 4\");"],
